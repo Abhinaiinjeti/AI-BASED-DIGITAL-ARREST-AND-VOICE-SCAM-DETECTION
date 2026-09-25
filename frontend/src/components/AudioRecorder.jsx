@@ -78,9 +78,8 @@ export default function AudioRecorder({ onAudioReady, disabled = false }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowed = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/x-m4a', 'audio/m4a', 'audio/ogg', 'audio/webm'];
-    if (!file.name.match(/\.(wav|mp3|m4a|ogg|webm|flac)$/i)) {
-      setErrorMsg('Unsupported format. Please select a valid WAV, MP3, M4A, OGG, or WebM audio file.');
+    if (!file.name.match(/\.(wav|mp3|m4a|ogg|opus|webm|aac|flac)$/i)) {
+      setErrorMsg('Unsupported format. Supported: WAV, MP3, M4A, OGG, OPUS, WebM, AAC, FLAC.');
       return;
     }
 
@@ -198,7 +197,7 @@ export default function AudioRecorder({ onAudioReady, disabled = false }) {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".wav,.mp3,.m4a,.ogg,.webm,.aac"
+              accept=".wav,.mp3,.m4a,.ogg,.opus,.webm,.aac,.flac"
               onChange={handleFileChange}
               className="hidden"
             />
@@ -214,7 +213,7 @@ export default function AudioRecorder({ onAudioReady, disabled = false }) {
               </p>
             </div>
             <div className="text-[11px] font-mono text-slate-500">
-              Supported: WAV, MP3, M4A, OGG, WebM (Max 25MB)
+              Supported: WhatsApp OGG/Opus, MP3, WAV, M4A, WebM (Max 25MB)
             </div>
           </div>
 

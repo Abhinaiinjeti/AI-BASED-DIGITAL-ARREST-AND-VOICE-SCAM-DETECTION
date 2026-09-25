@@ -8,7 +8,10 @@ import {
   AlertCircle, 
   Volume2, 
   Quote,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Cpu
 } from 'lucide-react';
 import AudioRecorder from '../components/AudioRecorder';
 import PipelineAnimation from '../components/PipelineAnimation';
@@ -22,6 +25,7 @@ export default function VoiceAnalysis() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   const handleAudioReady = (blob, fileName) => {
     setSelectedAudioBlob(blob);
@@ -150,21 +154,92 @@ export default function VoiceAnalysis() {
         />
       )}
 
-      {/* Audio Transcript Card */}
+      {/* Transcription Result Card */}
       {analysisResult?.transcript && (
-        <div className="p-6 rounded-2xl glass-panel border border-cyan-500/30 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Quote className="w-4 h-4" />
-              <span>Transcribed Speech Output (Whisper)</span>
-            </span>
-            <span className="text-[11px] font-mono text-slate-400">
-              Duration: {analysisResult.audio_duration ? `${analysisResult.audio_duration}s` : 'N/A'}
-            </span>
+        <div className="p-6 rounded-2xl glass-panel border border-cyan-500/30 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Quote className="w-4 h-4 text-cyan-400" />
+                <span>TRANSCRIPTION RESULT</span>
+              </span>
+            </div>
+            <div className="flex items-center space-x-3 text-[11px] font-mono">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-cyan-300">
+                Detected Language: <span className="font-bold text-slate-100">{analysisResult.language || 'English'}</span>
+              </span>
+              <span className="text-slate-400">
+                Duration: {analysisResult.audio_duration ? `${analysisResult.audio_duration}s` : 'N/A'}
+              </span>
+            </div>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 font-mono text-xs text-slate-200 leading-relaxed">
+
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 font-mono text-xs text-slate-200 leading-relaxed shadow-inner">
             "{analysisResult.transcript}"
           </div>
+
+          {/* Expandable Audio Diagnostics Panel */}
+          {analysisResult?.diagnostics && (
+            <div className="pt-2 border-t border-slate-800/80">
+              <button
+                type="button"
+                onClick={() => setShowDiagnostics((prev) => !prev)}
+                className="flex items-center space-x-1.5 text-[11px] font-mono text-slate-400 hover:text-cyan-400 transition-colors focus:outline-none"
+              >
+                <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Audio Diagnostics</span>
+                {showDiagnostics ? (
+                  <ChevronUp className="w-3.5 h-3.5 ml-1" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5 ml-1" />
+                )}
+              </button>
+
+              {showDiagnostics && (
+                <div className="mt-3 p-4 rounded-xl bg-slate-950/90 border border-slate-800 text-xs font-mono grid grid-cols-2 sm:grid-cols-4 gap-3 text-slate-300">
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">File:</div>
+                    <div className="text-slate-200 truncate font-semibold" title={analysisResult.diagnostics.filename}>
+                      {analysisResult.diagnostics.filename || 'recording.wav'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">Format:</div>
+                    <div className="text-cyan-300 font-semibold">{analysisResult.diagnostics.format || 'WAV'}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">Duration:</div>
+                    <div className="text-slate-200 font-semibold">{analysisResult.diagnostics.duration} sec</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">Sample Rate:</div>
+                    <div className="text-slate-200 font-semibold">{analysisResult.diagnostics.sample_rate || 16000} Hz</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">Channels:</div>
+                    <div className="text-slate-200 font-semibold">{analysisResult.diagnostics.channels}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">Converted Sample Rate:</div>
+                    <div className="text-teal-300 font-semibold">{analysisResult.diagnostics.converted_sample_rate || 16000} Hz</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">Speech Detected:</div>
+                    <div className="text-emerald-400 font-semibold">
+                      {analysisResult.diagnostics.speech_detected ? 'Yes' : 'No'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase text-slate-500">Detected Language:</div>
+                    <div className="text-cyan-300 font-semibold">
+                      {analysisResult.diagnostics.detected_language}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

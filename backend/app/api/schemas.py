@@ -31,17 +31,35 @@ class PipelineStageInfo(BaseModel):
     output_summary: str
 
 
+class AudioDiagnostics(BaseModel):
+    filename: Optional[str] = None
+    format: Optional[str] = None
+    duration: Optional[float] = None
+    sample_rate: Optional[int] = None
+    channels: Optional[int] = None
+    converted_sample_rate: int = 16000
+    converted_channels: int = 1
+    speech_detected: bool = True
+    detected_language: Optional[str] = None
+    detected_language_code: Optional[str] = None
+    language_confidence: Optional[float] = None
+
+
 class AnalysisResponse(BaseModel):
     success: bool
     input_type: str = "text"  # "text" or "voice"
     transcript: Optional[str] = None
     audio_duration: Optional[float] = None
+    duration: Optional[float] = None  # alias for audio_duration
+    audio_format: Optional[str] = None
+    speech_detected: Optional[bool] = None
     language: str
     language_confidence: float
     is_language_uncertain: bool = False
     classification: str       # "Scam" or "Legitimate"
     scam_category: str        # e.g. "police_digital_arrest", "bank_kyc", "none"
     model_confidence: float   # 0.0 to 1.0 (ML probability)
+    confidence: Optional[float] = None  # alias for model_confidence
     scam_probability: float   # 0.0 to 1.0
     risk_score: int           # 0 to 100
     risk_level: str           # "LOW", "SUSPICIOUS", "HIGH", "VERY HIGH"
@@ -51,6 +69,7 @@ class AnalysisResponse(BaseModel):
     indicators: List[IndicatorItem] = []
     recommendation: str
     pipeline_stages: List[PipelineStageInfo] = []
+    diagnostics: Optional[AudioDiagnostics] = None
     error: Optional[str] = None
 
 

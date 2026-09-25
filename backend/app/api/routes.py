@@ -203,13 +203,15 @@ async def analyze_audio(
 ):
     """
     Execute full voice analysis pipeline:
-    Validate Audio -> Faster-Whisper Speech-to-Text -> Text Preprocessing -> ML -> Indicators -> Risk.
+    Validate Audio -> FFmpeg Conversion -> Faster-Whisper Speech-to-Text -> Text Preprocessing -> ML -> Indicators -> Risk.
     """
-    ext = Path(file.filename).suffix.lower() if file.filename else ".wav"
+    filename = file.filename or "recording.wav"
+    ext = Path(filename).suffix.lower() if filename else ".wav"
     if ext not in audio_service.ALLOWED_EXTENSIONS:
+        allowed_list = ", ".join(sorted(audio_service.ALLOWED_EXTENSIONS))
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported audio format '{ext}'. Allowed: {', '.join(sorted(audio_service.ALLOWED_EXTENSIONS))}",
+            detail=f"Unsupported audio format '{ext}'. Supported formats: {allowed_list}",
         )
 
     # Save to temporary file securely
@@ -219,37 +221,50 @@ async def analyze_audio(
 
     try:
         # Transcribe with Faster-Whisper
-        whisper_lang = language.lower() if language and language.lower() in ("en", "hi", "te") else None
+        whisper_lang = None
+        if language and language.strip().lower() not in ("auto", "", "none"):
+            whisper_lang = language.strip().lower()
+
         transcription = audio_service.transcribe(tmp_path, language=whisper_lang)
 
         if not transcription["success"]:
+            err_type = transcription.get("error_type", "transcription_error")
+            status_code = 422
+            if err_type == "unsupported_format":
+                status_code = 400
+            elif err_type == "ffmpeg_missing":
+                status_code = 503
+            elif err_type == "model_error":
+                status_code = 500
+
             raise HTTPException(
-                status_code=422,
+                status_code=status_code,
                 detail=transcription.get("error", "Failed to transcribe audio."),
             )
 
         transcript_text = transcription["transcript"]
         audio_duration = transcription["duration"]
+        detected_lang = transcription.get("detected_language", "English")
+        lang_conf = transcription.get("language_confidence", 0.95)
 
-        predictor = get_predictor()
-
-        # Language Detection on transcript
-        lang_info = language_service.detect_language(transcript_text)
-
-        # ML Prediction
-        ml_pred = predictor.predict(transcript_text)
-
-        # Indicator Scanning
-        indicators_raw = indicator_engine.scan_indicators(transcript_text)
-        indicator_items = [IndicatorItem(**ind) for ind in indicators_raw]
-
-        # Composite Risk Engine
-        risk_res = risk_engine.calculate_risk(ml_pred, indicators_raw)
+        # Downstream NLP & ML Classification
+        try:
+            predictor = get_predictor()
+            lang_info = language_service.detect_language(transcript_text)
+            ml_pred = predictor.predict(transcript_text)
+            indicators_raw = indicator_engine.scan_indicators(transcript_text)
+            indicator_items = [IndicatorItem(**ind) for ind in indicators_raw]
+            risk_res = risk_engine.calculate_risk(ml_pred, indicators_raw)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Downstream scam classification failed on extracted transcript: {str(e)}",
+            )
 
         # Log to SQLite
         record_analysis(
             input_type="voice",
-            detected_language=lang_info["language"],
+            detected_language=detected_lang,
             classification=ml_pred["label"],
             scam_category=ml_pred["scam_category"],
             risk_level=risk_res["risk_level"],
@@ -274,12 +289,16 @@ async def analyze_audio(
             input_type="voice",
             transcript=transcript_text,
             audio_duration=audio_duration,
-            language=lang_info["language"],
-            language_confidence=lang_info["confidence"],
-            is_language_uncertain=lang_info["is_uncertain"],
+            duration=audio_duration,
+            audio_format=transcription.get("audio_format", ext.replace(".", "").upper()),
+            speech_detected=True,
+            language=detected_lang,
+            language_confidence=lang_conf,
+            is_language_uncertain=lang_info.get("is_uncertain", False),
             classification=ml_pred["label"],
             scam_category=ml_pred["scam_category"],
             model_confidence=ml_pred["confidence"],
+            confidence=ml_pred["confidence"],
             scam_probability=ml_pred["scam_probability"],
             risk_score=risk_res["risk_score"],
             risk_level=risk_res["risk_level"],
@@ -289,6 +308,7 @@ async def analyze_audio(
             indicators=indicator_items,
             recommendation=risk_res["recommendation"],
             pipeline_stages=stages,
+            diagnostics=transcription.get("diagnostics"),
         )
 
     finally:
