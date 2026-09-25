@@ -30,6 +30,10 @@ data/raw/indica/*.zip
 *.mp3
 *.wav
 *.m4a
+!data/sample_audio/*
+
+# Scratch & Temporary
+scratch/
 
 # SQLite
 backend/data/*.db
