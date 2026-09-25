@@ -1,0 +1,16 @@
+# Render.com Blueprint Specification
+# AI-BASED DIGITAL ARREST AND VOICE SCAM DETECTION
+
+services:
+  - type: web
+    name: digital-arrest-voice-scam-detection
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: WHISPER_MODEL_SIZE
+        value: base

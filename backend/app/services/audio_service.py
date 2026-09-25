@@ -197,8 +197,8 @@ class AudioService:
     MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB
     MAX_DURATION_SECONDS = 600  # 10 minutes
 
-    def __init__(self, model_size: str = "base"):
-        self.model_size = model_size
+    def __init__(self, model_size: Optional[str] = None):
+        self.model_size = model_size or os.environ.get("WHISPER_MODEL_SIZE", "base")
 
     def _get_whisper_model(self):
         """Lazily initialize and return the cached WhisperModel singleton."""
