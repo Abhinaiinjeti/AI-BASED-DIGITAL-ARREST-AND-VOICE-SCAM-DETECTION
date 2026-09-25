@@ -1,0 +1,80 @@
+{
+  "indian_scam": {
+    "dataset_name": "Indian Cyber Scam PhoneCall Hinglish Dataset",
+    "file_path": "C:\\AI-BASED DIGITAL ARREST AND VOICE SCAM DETECTION\\data\\raw\\indian_scam\\India_Cyber_Scam_Hinglish_Dataset.csv",
+    "total_records": 10000,
+    "columns": [
+      "text",
+      "label",
+      "scam_category",
+      "caller_type",
+      "audio_duration",
+      "urgency_level",
+      "contains_blackmail",
+      "language_style"
+    ],
+    "missing_values": {
+      "text": 0,
+      "label": 0,
+      "scam_category": 0,
+      "caller_type": 0,
+      "audio_duration": 0,
+      "urgency_level": 0,
+      "contains_blackmail": 0,
+      "language_style": 0
+    },
+    "duplicate_texts": 9257,
+    "label_distribution": {
+      "0": 5000,
+      "1": 5000
+    },
+    "category_distribution": {
+      "none": 5000,
+      "police_digital_arrest": 1776,
+      "police_blackmail": 1460,
+      "bank_kyc": 718,
+      "amazon": 273,
+      "aadhaar": 260,
+      "lottery": 259,
+      "relative": 254
+    },
+    "language_style_distribution": {
+      "hinglish": 10000
+    },
+    "text_statistics": {
+      "mean_chars": 80.864,
+      "max_chars": 146,
+      "min_chars": 44,
+      "mean_words": 14.344,
+      "max_words": 26
+    }
+  },
+  "indica_subset": {
+    "dataset_name": "INDICA / IndiF Multilingual Benchmark (Subset)",
+    "directory": "C:\\AI-BASED DIGITAL ARREST AND VOICE SCAM DETECTION\\data\\raw\\indica\\Text_samples",
+    "total_samples": 4500,
+    "languages": {
+      "english": {
+        "file_count": 1500,
+        "classes": {
+          "scam": 1500
+        },
+        "sample_snippet": "Speaker1: Hi, how are you? I'm Liu Xiao, a customer service representative from JD.com. We've detected a quality issue w"
+      },
+      "hindi": {
+        "file_count": 1500,
+        "classes": {
+          "legit": 1500
+        },
+        "sample_snippet": "Speaker1: \u092e\u0948\u0902 \u090f\u0915 \u0908-\u0915\u0949\u092e\u0930\u094d\u0938 \u092a\u094d\u0932\u0947\u091f\u092b\u0949\u0930\u094d\u092e \u0917\u094d\u0930\u093e\u0939\u0915 \u0938\u0947\u0935\u093e \u092a\u094d\u0930\u0924\u093f\u0928\u093f\u0927\u093f \u0939\u0942\u0902 \u0906\u092a\u0915\u0947 \u0916\u093e\u0924\u0947 \u092a\u0930 \u0906\u092a\u0915\u0947 \u0936\u0949\u092a\u093f\u0902\u0917 \u092a\u094d\u0935\u093e\u0907\u0902\u091f \u0938\u092e\u093e\u092a\u094d\u0924 \u0939\u094b\u0928\u0947 \u0935\u093e\u0932\u0947 \u0939\u0948\u0902. \u0915\u094d"
+      },
+      "telugu": {
+        "file_count": 1500,
+        "classes": {
+          "scam": 1500
+        },
+        "sample_snippet": "Speaker1: \u0c39\u0c32\u0c4b, \u0c07\u0c26\u0c3f \u0c1c\u0c3e\u0c02\u0c17\u0c4d \u0c39\u0c41\u0c35\u0c3e\u0c2e\u0c3e\u0c28\u0c4d?\nSpeaker2: \u0c2e\u0c40\u0c30\u0c41 \u0c0e\u0c35\u0c30\u0c41?\nSpeaker1: \u0c28\u0c47\u0c28\u0c41 JD \u0c2b\u0c48\u0c28\u0c3e\u0c28\u0c4d\u0c38\u0c4d \u0c2f\u0c4a\u0c15\u0c4d\u0c15 \u0c15\u0c38\u0c4d\u0c1f\u0c2e\u0c30\u0c4d \u0c38\u0c30\u0c4d\u0c35\u0c40\u0c38\u0c4d \u0c2a\u0c4d\u0c30\u0c24\u0c3f\u0c28\u0c3f\u0c27\u0c3f\u0c28\u0c3f, \u0c2e\u0c40"
+      }
+    }
+  }
+}
